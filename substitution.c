@@ -3,11 +3,10 @@
 #include <string.h>
 #include <ctype.h>
 
-// implements substitution encryption
-string alphabet[] =
-{ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+void encode(string plain, string key);
 
-//
+
+
 int main(int argc, string argv[])
 {
     // if there is no argument
@@ -17,7 +16,8 @@ int main(int argc, string argv[])
         printf("\n");
         return 1;
     }
-    // if there are too few arguments
+    // if there are wrong number of arguments
+    // TODO prompts to help get 26 letters exactly
     else if (strlen(argv[1]) != 26)
     {
         printf("Key must contain 26 characters.");
@@ -26,16 +26,40 @@ int main(int argc, string argv[])
     }
     else
     {
-        printf("plaintext: ");
-
-        printf("\n");
+        // get key
+        string plainString = get_string("plaintext: ");
+        string key = argv[1];
+        // encoding
         printf("ciphertext: ");
-        // TODO redo with ciphertext
-        for (int i = 0; i < 26; i++)
-        {
-            printf("%c", argv[1][i]);
-        }
+        // printf("%s", encode(plainString, key));
+        encode(plainString, key);
         printf("\n");
         return 0;
+    }
+}
+
+void encode(string plainString, string key)
+{
+    int length = strlen(plainString);
+    // string encoded[length];
+    for (int i = 0; i < length; i++)
+    {
+        // upper-case letters
+        if (plainString[i] >= 65 && plainString[i] <= 90)
+        {
+            char encodedChar = key[((int) plainString[i] - 65)];
+            printf("%c", encodedChar);
+        }
+        // lower-case letters
+        else if (plainString[i] >= 97 && plainString[i] <= 122)
+        {
+            // adding 32 makes key lower case
+            char encodedChar = (int) key[((int) plainString[i] - 65)];
+            printf("%c", encodedChar);
+        }
+        else
+        {
+            printf("%c", plainString[i]);
+        }
     }
 }
