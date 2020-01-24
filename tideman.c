@@ -93,18 +93,18 @@ int main(int argc, string argv[])
                 return 3;
             }
         }
-        
         record_preferences(ranks);
+        
         // delete this debuggery
+        // [j][k] is candidate, votes
         for (int j = 0; j < candidate_count; j++)
         {
             for (int k = 0; k < candidate_count; k++)
             {
-                printf("%d ", preferences[k][j]);
+                printf("%d ", preferences[j][k]);
             }
             printf("\n");
         }
-        
         printf("\n");
     }
     
@@ -149,14 +149,75 @@ void record_preferences(int ranks[])
 // Record pairs of candidates where one is preferred over the other
 void add_pairs(void)
 {
-    // TODO
+    // [j][k] is ['candidate', 'votes']
+    pair_count = 0;
+    for (int j = 0; j < candidate_count; j++)
+    {
+        for (int k = 0; k < candidate_count; k++)
+        {
+            if (preferences[j][k] == 0)
+            {
+                continue;
+            }
+            else if (preferences[j][k] == preferences[k][j])
+            {
+                continue;
+            }
+            else if (preferences[j][k] > preferences[k][j]) // j is the winner
+            {
+                pairs[pair_count].winner = j;
+                pairs[pair_count].loser = k;
+                pair_count++;
+            }
+            // j is the loser
+        }
+    }
     return;
 }
+
 
 // Sort pairs in decreasing order by strength of victory
 void sort_pairs(void)
 {
-    // TODO
+    printf("pairs %i\n", pair_count);
+    int votes[pair_count];
+    // binary sort
+    for (int i = 0; i < pair_count; i++)
+    {
+        if (pair_count < 2)
+        {
+            return;
+        }
+        else
+        {
+            pair pairsSwap;
+            int votesSwap;
+            for (int j = 0; j < pair_count - 1; j++)
+            {
+                votes[i] = preferences[pairs[i].winner][pairs[i].loser];
+                votes[i + 1] = preferences[pairs[i + 1].winner][pairs[i + 1].loser];
+                if (votes[i] > votes[i + 1])
+                {
+                    continue;
+                }
+                else // swap pairs and votes
+                {
+                    pairsSwap = pairs[i + 1];
+                    votesSwap = votes[i + 1];
+                    pairs[i + 1] = pairs[i];
+                    votes[i + 1] = votes[i];
+                    pairs[i] = pairsSwap;
+                    votes[i] = votesSwap;
+                }
+            }
+        }
+    }
+    // print state
+    printf("winner loser votes\n");
+    for (int i = 0; i < pair_count; i++)
+    {
+        printf("%i %i %i\n", pairs[i].winner, pairs[i].loser, votes[i]);
+    }
     return;
 }
 
