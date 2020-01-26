@@ -21,16 +21,18 @@ pair;
 
 // Array of candidates
 string candidates[MAX];
-pair pairs[MAX * (MAX - 1) / 2];
-
-int pair_count;
 int candidate_count;
+pair pairs[MAX * (MAX - 1) / 2];
+int pair_count;
+
+pair thisPair; // used in loop detection
 
 // Function prototypes
 bool vote(int rank, string name, int ranks[]);
 void record_preferences(int ranks[]);
 void add_pairs(void);
 void sort_pairs(void);
+void findNext(int thisIndex, pair thisPair); // used by lock_pairs()
 void lock_pairs(void);
 void print_winner(void);
 
@@ -188,7 +190,7 @@ void sort_pairs(void)
         {
             return;
         }
-        else
+        else // bubble sort
         {
             pair pairsSwap;
             int votesSwap;
@@ -196,7 +198,7 @@ void sort_pairs(void)
             {
                 votes[i] = preferences[pairs[i].winner][pairs[i].loser];
                 votes[i + 1] = preferences[pairs[i + 1].winner][pairs[i + 1].loser];
-                if (votes[i] > votes[i + 1])
+                if (votes[i] > votes[i + 1]) // already sorted?
                 {
                     continue;
                 }
@@ -221,10 +223,44 @@ void sort_pairs(void)
     return;
 }
 
+// returns index of next edge or bust, required for lock_pairs() below
+void findNext(int thisIndex, pair edgePair)
+{
+    pair nextPair;
+    int nextIndex = -1;
+    // nextPair = pairs[thisIndex + 1];
+    for (int j = 0; j < pair_count; j++)
+    {
+        if (j == thisIndex) // don't self-pair
+        {
+            continue;
+        }
+        if (nextPair.loser == edgePair.winner) // loop
+        {
+            continue;
+        }
+        if (edgePair.loser == nextPair.winner)
+        {
+            findNext(j, edgePair);
+        }
+        else
+        {
+            locked[edgePair.winner][edgePair.loser] = true;
+            return;
+        }
+    }
+    return;
+}
+
 // Lock pairs into the candidate graph in order, without creating cycles
 void lock_pairs(void)
 {
-    // TODO
+    // evaluate each pair and its graph to calculate locked[]
+    for (int i = 0; i < pair_count; i++)
+    {
+        thisPair = pairs[i];
+        findNext(i, thisPair);
+    }
     return;
 }
 
