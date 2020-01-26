@@ -238,13 +238,14 @@ void findNext(int thisIndex, pair edgePair)
         {
             printf("loop! nextPairLoser %i edgePairWinner %i\n", nextPair.loser, edgePair.winner);
             return;
+            printf("no return\n");
         }
         else if (nextPair.winner == edgePair.loser) // continue search
         {
             printf("continue search, edgePairLoser: %i nextPairWinner %i\n", edgePair.loser, nextPair.winner);
             locked[edgePair.winner][edgePair.loser] = true;
 
-            findNext(j, edgePair);
+            // findNext(j, edgePair);
         }
         else
         {
@@ -265,6 +266,7 @@ void lock_pairs(void)
         thisPair = pairs[i];
         printf("findNext %i thisPair %i %i\n", i, thisPair.winner, thisPair.loser);
         findNext(i, thisPair);
+        printf("returned");
     }
     printf("\n");
     for (int i = 0; i < pair_count; i++)
