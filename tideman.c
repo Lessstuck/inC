@@ -44,7 +44,7 @@ int main(int argc, string argv[])
         printf("Usage: tideman [candidate ...]\n");
         return 1;
     }
-    
+
     // Populate array of candidates
     candidate_count = argc - 1;
     if (candidate_count > MAX)
@@ -56,7 +56,7 @@ int main(int argc, string argv[])
     {
         candidates[i] = argv[i + 1];
     }
-    
+
     // Clear graph of locked in pairs
     for (int i = 0; i < candidate_count; i++)
     {
@@ -65,10 +65,10 @@ int main(int argc, string argv[])
             locked[i][j] = false;
         }
     }
-    
+
     pair_count = 0;
     int voter_count = get_int("Number of voters: ");
-    
+
     // Clear preferences - I had to add this despite the specifications
     for (int j = 0; j < MAX; j++)
     {
@@ -77,18 +77,18 @@ int main(int argc, string argv[])
             preferences[j][k] = 0;
         }
     }
-    
+
     // Query for votes
     for (int i = 0; i < voter_count; i++)
     {
         // ranks[i] is voter's ith preference
         int ranks[candidate_count];
-        
+
         // Query for each rank
         for (int j = 0; j < candidate_count; j++)
         {
             string name = get_string("Rank %i: ", j + 1);
-            
+
             if (!vote(j, name, ranks))
             {
                 printf("Invalid vote.\n");
@@ -96,7 +96,7 @@ int main(int argc, string argv[])
             }
         }
         record_preferences(ranks);
-        
+
         // delete this debuggery
         // [j][k] is candidate, votes
         for (int j = 0; j < candidate_count; j++)
@@ -109,7 +109,7 @@ int main(int argc, string argv[])
         }
         printf("\n");
     }
-    
+
     add_pairs();
     sort_pairs();
     lock_pairs();
@@ -144,7 +144,7 @@ void record_preferences(int ranks[])
         }
         remaining_candidates--;
     }
-    
+
     return;
 }
 
@@ -226,21 +226,24 @@ void sort_pairs(void)
 // returns index of next edge or bust, required for lock_pairs() below
 void findNext(int thisIndex, pair edgePair)
 {
-    pair nextPair;
-    int nextIndex = -1;
-    // nextPair = pairs[thisIndex + 1];
+    pair nextPair = pairs[thisIndex + 1];
     for (int j = 0; j < pair_count; j++)
     {
+        printf("top of loop thisIndex %i j %i\n", thisIndex, j);
         if (j == thisIndex) // don't self-pair
         {
             continue;
         }
-        if (nextPair.loser == edgePair.winner) // loop
+        else if (nextPair.loser == edgePair.winner) // loop
         {
-            continue;
+            printf("loop! nextPairLoser %i edgePairWinner %i\n", nextPair.loser, edgePair.winner);
+            return;
         }
-        if (edgePair.loser == nextPair.winner)
+        else if (nextPair.winner == edgePair.loser) // continue search
         {
+            printf("continue search, edgePairLoser: %i nextPairWinner %i\n", edgePair.loser, nextPair.winner);
+            locked[edgePair.winner][edgePair.loser] = true;
+
             findNext(j, edgePair);
         }
         else
@@ -249,6 +252,7 @@ void findNext(int thisIndex, pair edgePair)
             return;
         }
     }
+    printf("loop done\n");
     return;
 }
 
@@ -259,8 +263,19 @@ void lock_pairs(void)
     for (int i = 0; i < pair_count; i++)
     {
         thisPair = pairs[i];
+        printf("findNext %i thisPair %i %i\n", i, thisPair.winner, thisPair.loser);
         findNext(i, thisPair);
     }
+    printf("\n");
+    for (int i = 0; i < pair_count; i++)
+    {
+        for (int j = 0; j < pair_count; j++)
+        {
+        printf("%i ", locked[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
     return;
 }
 
