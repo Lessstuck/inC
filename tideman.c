@@ -25,7 +25,7 @@ int candidate_count;
 pair pairs[MAX * (MAX - 1) / 2];
 int pair_count;
 
-pair thisPair; // used in loop detection
+pair evalPair, thisPair; // used in loop detection
 
 // Function prototypes
 bool vote(int rank, string name, int ranks[]);
@@ -117,6 +117,8 @@ int main(int argc, string argv[])
     return 0;
 }
 
+
+
 // Update ranks given a new vote
 bool vote(int rank, string name, int ranks[])
 {
@@ -130,6 +132,8 @@ bool vote(int rank, string name, int ranks[])
     }
     return false;
 }
+
+
 
 // Update preferences given one voter's ranks
 void record_preferences(int ranks[])
@@ -147,6 +151,8 @@ void record_preferences(int ranks[])
 
     return;
 }
+
+
 
 // Record pairs of candidates where one is preferred over the other
 void add_pairs(void)
@@ -176,6 +182,7 @@ void add_pairs(void)
     }
     return;
 }
+
 
 
 // Sort pairs in decreasing order by strength of victory
@@ -223,39 +230,65 @@ void sort_pairs(void)
     return;
 }
 
+
+
 // returns index of next edge or bust, required for lock_pairs() below
 void findNext(int thisIndex, pair edgePair)
 {
+    thisPair = pairs[thisIndex];
     pair nextPair = pairs[thisIndex + 1];
     for (int j = 0; j < pair_count; j++)
     {
         printf("top of loop thisIndex %i j %i\n", thisIndex, j);
-        if (j == thisIndex) // don't self-pair
+        if (locked[thisPair.winner][thisPair.loser] == true)
+        {
+            printf("** This pair locked **\n");
+            return;
+        }
+        else if (j == thisIndex) // don't self-pair
         {
             continue;
         }
-        else if (nextPair.loser == edgePair.winner) // loop
+        else if (nextPair.winner == thisPair.loser) // new graph connection?
         {
-            printf("loop! nextPairLoser %i edgePairWinner %i\n", nextPair.loser, edgePair.winner);
-            return;
-            printf("no return\n");
-        }
-        else if (nextPair.winner == edgePair.loser) // continue search
-        {
-            printf("continue search, edgePairLoser: %i nextPairWinner %i\n", edgePair.loser, nextPair.winner);
-            locked[edgePair.winner][edgePair.loser] = true;
+            printf("preloopDetection edgePairLoseWINNER %i edgePairLOSER %i\n", edgePair.winner, edgePair.loser);
+            if (thisPair.loser == edgePair.winner) // loop
+            {
+                printf("Loooooop!! thisPairLoser %i edgePairWinner %i\n", thisPair.loser, edgePair.winner);
+                return;
+            }
 
-            // findNext(j, edgePair);
-        }
-        else
-        {
-            locked[edgePair.winner][edgePair.loser] = true;
-            return;
+
+            printf("Lock this pair! evaluate nextPair, thisPairLoser: %i nextPairWinner %i\n", thisPair.loser, nextPair.winner);
+            locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
+                printf("\n");
+                for (int y = 0; y < pair_count; y++)
+                {
+                    for (int z = 0; z < pair_count; z++)
+                    {
+                    printf("%i ", locked[y][z]);
+                    }
+            printf("\n");
+             }
+            printf("\n");
+
+
+            if (locked[nextPair.winner][nextPair.loser] == true)
+            {
+                printf("Next pair is  locked.\n");
+                return;
+            }
+            else
+            {
+                findNext(j, edgePair);
+            }
         }
     }
     printf("loop done\n");
     return;
 }
+
+
 
 // Lock pairs into the candidate graph in order, without creating cycles
 void lock_pairs(void)
@@ -263,10 +296,10 @@ void lock_pairs(void)
     // evaluate each pair and its graph to calculate locked[]
     for (int i = 0; i < pair_count; i++)
     {
-        thisPair = pairs[i];
-        printf("findNext %i thisPair %i %i\n", i, thisPair.winner, thisPair.loser);
-        findNext(i, thisPair);
-        printf("returned");
+        evalPair = pairs[i];
+        printf("findNext %i evalPair %i %i\n", i, evalPair.winner, evalPair.loser);
+        findNext(i, evalPair);
+        printf("returned\n");
     }
     printf("\n");
     for (int i = 0; i < pair_count; i++)
@@ -280,6 +313,8 @@ void lock_pairs(void)
     printf("\n");
     return;
 }
+
+
 
 // Print the winner of the election
 void print_winner(void)
