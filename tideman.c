@@ -241,6 +241,7 @@ void nextTest(int j)
     if (thisPair.loser == edgePair.winner) // loop
     {
         printf("Loooooop!!");
+        locked[thisPair.winner][thisPair.loser] = false;
         return;
     }
     printf("Lock this pair! %i %i\n", thisPair.winner, thisPair.loser);
@@ -273,6 +274,7 @@ void lock_pairs(void)
             if (testPair.loser == edgePair.winner) // loop
             {
                 printf("Loooooop!! testPairLoser %i edgePairWinner %i\n", testPair.loser, edgePair.winner);
+                locked[thisPair.winner][thisPair.loser] = false;
                 continue;
             }
             if (locked[thisPair.winner][thisPair.loser] == true)
