@@ -32,7 +32,7 @@ bool vote(int rank, string name, int ranks[]);
 void record_preferences(int ranks[]);
 void add_pairs(void);
 void sort_pairs(void);
-void findNext(int thisIndex);
+void nextTest(int j);
 pair edgePair; // used by lock_pairs()
 void lock_pairs(void);
 void print_winner(void);
@@ -234,58 +234,18 @@ void sort_pairs(void)
 
 
 // returns index of next edge or bust, required for lock_pairs() below
-void findNext(int thisIndex)
+void nextTest(int j)
 {
-    thisPair = pairs[thisIndex];
-    pair nextPair = pairs[(thisIndex + 1) % pair_count];
-    for (int j = 0; j < pair_count; j++)
+    thisPair = pairs[j];
+    printf("\nnextTest loop test: thisPair %i %i edgePair %i %i\n", thisPair.winner, thisPair.loser, edgePair.winner, edgePair.loser);
+    if (thisPair.loser == edgePair.winner) // loop
     {
-        printf("\n\ntop of loop thisIndex %i j %i\n", thisIndex, j);
-        printf("loop test: thisPair %i %i nextPair %i %i edgePair %i %i\n", thisPair.winner, thisPair.loser,
-               nextPair.winner, nextPair.loser, edgePair.winner, edgePair.loser);
-        if (nextPair.loser == edgePair.winner) // loop
-        {
-            printf("Loooooop!! nextPairLoser %i edgePairWinner %i\n", nextPair.loser, edgePair.winner);
-            return;
-        }
-        if (locked[thisPair.winner][thisPair.loser] == true)
-        {
-            printf("** This pair locked **\n");
-            return;
-        }
-        // else
-        // if (j == thisIndex) // don't self-pair
-        // {
-        //     continue;
-        // }
-        if (nextPair.winner == thisPair.loser) // new graph connection?
-
-        {
-            printf("Lock this pair! evaluate nextPair, thisPairLoser: %i nextPairWinner %i\n", thisPair.loser, nextPair.winner);
-            locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
-            printf("\n");
-            findNext(j);
-        }
-        for (int y = 0; y < pair_count; y++)
-        {
-            for (int z = 0; z < pair_count; z++)
-            {
-                printf("%i ", locked[y][z]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-
-
-        // if (locked[nextPair.winner][nextPair.loser] == true)
-        // {
-        //     printf("Next pair is  locked.\n");
-        //     return;
-        // }
-        // else
-
+        printf("Loooooop!!");
+        return;
     }
-    printf("loop done\n");
+    printf("Lock this pair! %i %i\n", thisPair.winner, thisPair.loser);
+    locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
+    printf("\n");
     return;
 }
 
@@ -295,12 +255,58 @@ void findNext(int thisIndex)
 void lock_pairs(void)
 {
     // evaluate each pair and its graph to calculate locked[]
+    pair testPair;
     for (int i = 0; i < pair_count; i++)
     {
         edgePair = pairs[i];
-        printf("findNext %i evalPair %i %i\n", i, evalPair.winner, evalPair.loser);
-        findNext(i);
-        printf("returned\n");
+        // printf("findNext %i\n", i, evalPair.winner, evalPair.loser);
+        // old findNext :
+        thisPair = pairs[i];
+        // pair nextPair = pairs[(i + 1) % pair_count];
+
+        for (int j = 0; j < pair_count; j++)
+        {
+            printf("\n\ntop of loop thisIndex %i j %i\n", i, j);
+            testPair = pairs[j];
+            printf("loop test: thisPair %i %i testPair %i %i edgePair %i %i\n", thisPair.winner, thisPair.loser,
+            testPair.winner, testPair.loser, edgePair.winner, edgePair.loser);
+            if (testPair.loser == edgePair.winner) // loop
+            {
+                printf("Loooooop!! testPairLoser %i edgePairWinner %i\n", testPair.loser, edgePair.winner);
+                continue;
+            }
+            if (locked[thisPair.winner][thisPair.loser] == true)
+            {
+                printf("** This pair locked **\n");
+                continue;
+            }
+            // else
+            // if (j == thisIndex) // don't self-pair
+            // {
+            //     continue;
+            // }
+            if (testPair.winner == thisPair.loser) // new graph connection?
+
+            {
+                printf("Lock this pair! evaluate testPair, thisPairLoser: %i nextPairWinner %i\n", thisPair.loser, testPair.winner);
+                locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
+                printf("\n");
+                nextTest(j);
+            }
+            for (int y = 0; y < pair_count; y++)
+            {
+                for (int z = 0; z < pair_count; z++)
+                {
+                    printf("%i ", locked[y][z]);
+                }
+                printf("\n");
+            }
+            printf("\n");
+
+
+        }
+        printf("loop done\n");
+
     }
     printf("\n");
     for (int i = 0; i < pair_count; i++)
