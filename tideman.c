@@ -164,6 +164,7 @@ void add_pairs(void)
     {
         for (int k = 0; k < candidate_count; k++)
         {
+            printf("add_pairs: j k = %i %i\n", j, k);
             if (preferences[j][k] == 0)
             {
                 continue;
@@ -189,7 +190,7 @@ void add_pairs(void)
 // Sort pairs in decreasing order by strength of victory
 void sort_pairs(void)
 {
-    printf("pairs %i\n", pair_count);
+    printf("sort %i pairs\n", pair_count);
     int votes[pair_count];
     // binary sort
     for (int i = 0; i < pair_count; i++)
@@ -260,10 +261,7 @@ void lock_pairs(void)
     for (int i = 0; i < pair_count; i++)
     {
         edgePair = pairs[i];
-        // printf("findNext %i\n", i, evalPair.winner, evalPair.loser);
-        // old findNext :
         thisPair = pairs[i];
-        // pair nextPair = pairs[(i + 1) % pair_count];
 
         for (int j = 0; j < pair_count; j++)
         {
@@ -282,18 +280,13 @@ void lock_pairs(void)
                 printf("** This pair locked **\n");
                 continue;
             }
-            // else
-            // if (j == thisIndex) // don't self-pair
-            // {
-            //     continue;
-            // }
             if (testPair.winner == thisPair.loser) // new graph connection?
 
             {
-                printf("Lock this pair! evaluate testPair, thisPairLoser: %i nextPairWinner %i\n", thisPair.loser, testPair.winner);
+                printf("Lock this pair! evaluate testPair, thisPairLoser: %i testPairWinner %i\n", thisPair.loser, testPair.winner);
                 locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
                 printf("\n");
-                nextTest(j);
+                nextTest(j);  // recursion
             }
             for (int y = 0; y < pair_count; y++)
             {
