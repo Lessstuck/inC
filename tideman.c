@@ -290,7 +290,7 @@ void lock_pairs(void)
                 printf("\n");
                 nextTest(j);  // recursion
             }
-            // else
+            else
             // {
             //     locked[thisPair.winner][thisPair.loser] = false;      // unlock this pair
             // }
