@@ -164,7 +164,6 @@ void add_pairs(void)
     {
         for (int k = 0; k < candidate_count; k++)
         {
-            printf("add_pairs: j k = %i %i\n", j, k);
             if (preferences[j][k] == 0)
             {
                 continue;
@@ -242,13 +241,16 @@ void nextTest(int j)
     if (thisPair.loser == edgePair.winner) // loop
     {
         printf("Loooooop!!");
-        locked[thisPair.winner][thisPair.loser] = false;
+        // locked[thisPair.winner][thisPair.loser] = false;
         return;
     }
-    printf("Lock this pair! %i %i\n", thisPair.winner, thisPair.loser);
-    locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
-    printf("\n");
-    return;
+    else
+    {
+        printf("Lock this pair! %i %i\n", thisPair.winner, thisPair.loser);
+        locked[thisPair.winner][thisPair.loser] = true;      // lock this pair
+        printf("\n");
+        return;
+    }
 }
 
 
@@ -288,6 +290,10 @@ void lock_pairs(void)
                 printf("\n");
                 nextTest(j);  // recursion
             }
+            // else
+            // {
+            //     locked[thisPair.winner][thisPair.loser] = false;      // unlock this pair
+            // }
             for (int y = 0; y < pair_count; y++)
             {
                 for (int z = 0; z < pair_count; z++)
