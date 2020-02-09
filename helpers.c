@@ -1,6 +1,8 @@
 #include "helpers.h"
-#include "stdio.h"
-#include "math.h"
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
 
 // Convert image to grayscale
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
@@ -28,28 +30,33 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
-    RGBTRIPLE transformedImage[height][width];
-    if (width % 2 == 0)
+    // Allocate memory for transfornedImage
+    RGBTRIPLE(*transformedImage)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    if (transformedImage == NULL)
     {
-        for (int i = 0; i < height; i++)
+        fprintf(stderr, "Not enough memory to store image.\n");
+        // fclose(outptr);
+        // fclose(inptr);
+        return;
+    }
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
         {
-            for (int j = 0; j < width; j++)
-            {
-                transformedImage[i][j] = image[i][width - j - 1];
-            }
+            transformedImage[i][j] = image[i][width - j - 1];
         }
     }
-    else
+
+    for (int i = 0; i < height; i++)
     {
-        for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
         {
-            for (int j = 0; j < width; j++)
-            {
-                transformedImage[i][j] = image[i][width - j - 1];
-            }
+            image[i][j].rgbtBlue = transformedImage[i][j].rgbtBlue;
+            image[i][j].rgbtGreen = transformedImage[i][j].rgbtGreen;
+            image[i][j].rgbtRed = transformedImage[i][j].rgbtRed;
         }
     }
-    image = transformedImage;
+    free(transformedImage);
     return;
 }
 
