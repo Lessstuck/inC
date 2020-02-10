@@ -170,30 +170,41 @@ for (int i = 0; i < height; i++)
             {
                 for (int t = 0; t < 3; t++)
                 {
-                    // choose surrounding pixels, pad edges with black pixels
-                    if (s >= 0 && s < height && t >= 0 && t < width)
+                    // choose surrounding pixels
+                    // TODO: pad edges with black pixels
+                    if (i + s >= 0 && i + s < height && j + t >= 0 && j + t < width)
                     {
-                        blueX = blueX + Gx[s][t] * image[i - s - 1][j - t - 1].rgbtBlue;
-                        greenX = greenX + Gx[s][t] * image[i - s - 1][j - t - 1].rgbtGreen;
-                        redX = redX + Gx[s][t] * image[i - s - 1][j - t - 1].rgbtRed;
-                    }
-                    {
-                        blueY = blueY + Gy[s][t] * image[i - s - 1][j - t - 1].rgbtBlue;
-                        greenY = greenY + Gy[s][t] * image[i - s - 1][j - t - 1].rgbtGreen;
-                        redY= redY + Gy[s][t] * image[i - s - 1][j - t - 1].rgbtRed;
+                        blueX = blueX + Gx[s][t] * image[i + s][j + t].rgbtBlue;
+                        greenX = greenX + Gx[s][t] * image[i + s][j + t].rgbtGreen;
+                        redX = redX + Gx[s][t] * image[i + s][j + t].rgbtRed;
+
+                        blueY = blueY + Gy[s][t] * image[i + s][j + t].rgbtBlue;
+                        greenY = greenY + Gy[s][t] * image[i + s][j + t].rgbtGreen;
+                        redY= redY + Gy[s][t] * image[i + s][j + t].rgbtRed;
                     }
                 }
             }
-            blue = sqrt(pow(blueX, 2) + pow(blueY,2));
-            green = sqrt(pow(greenX, 2) + pow(greenY,2));
-            red = sqrt(pow(redX, 2) + pow(redY,2));
-            transformedImage[i][j].rgbtBlue = blue;
-            transformedImage[i][j].rgbtGreen = green;
-            transformedImage[i][j].rgbtRed = red;
+            blue = round(sqrt(pow(blueX, 2) + pow(blueY,2)));
+            if (blue > 255)
+            {
+                blue = 255;
+            }
+            green = round(sqrt(pow(greenX, 2) + pow(greenY,2)));
+            if (green > 255)
+            {
+                green = 255;
+            }
+            red = round((sqrt(pow(redX, 2) + pow(redY,2))));
+            if (red > 255)
+            {
+                red = 255;
+            }
+            image[i][j].rgbtBlue = (int) blue;
+            image[i][j].rgbtGreen = (int) green;
+            image[i][j].rgbtRed = (int) red;
         }
-
-
-    return;
     }
-
+    // printf("blue %c, green %c, red %c\n", image[height][width].rgbtBlue, image[height][width].rgbtGreen, image[height][width].rgbtRed);
+    // printf("blue %f, green %f, red %f\n", blue, green, red);
+    return;
 }
