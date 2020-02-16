@@ -22,40 +22,54 @@ int main(int argc, char *argv[])
     // get 512-byte buffers
     BYTE gotc;
     BYTE buffer[512];
+    int i = 0;
     long j = 0;
-    long k = 0;
+    int k = 0;
     int jpegCounter = 0;
-    char filename[8];
-    for (long i = 0; i < 7314; i++)  // magic number of blocks in test file
-    {
-        for (j = 0; j < 512; j++)
-        {
-            gotc = fgetc(rawPtr);
-            {
-                buffer[j] = gotc;
-            }
-        }
-        // open first file for writing
-        sprintf("filename", "%03i.jpg", jpegCounter);
-        FILE *writePtr = fopen(filename, "w");
-        if (rawPtr == NULL)
-        {
-            return 1;
-        }
+    char writeFile[7];
+    FILE *writePtr = NULL;
 
+    for (i = 0; i < 7314; i++)  // magic number of blocks in test file
+    {
+         if (fread(buffer, 1, 512, rawPtr) < 512)
+         {
+            fclose(rawPtr);
+            fclose(writePtr);
+            return 0;
+         }
         // look for jpeg header
         if ((buffer[0] == 0xff) && (buffer[1] == 0xd8) && (buffer[2] == 0xff) && ((buffer[3] & 0xf0) == 0xe0))
         {
-            jpegCounter++;
-            printf("jpegCounter: %i, block: %li\n", jpegCounter, i);
-            for (k = 0; k < 512; k++)
+            if (jpegCounter == 0)
             {
-                fputc(buffer[k], writePtr);
+                sprintf(writeFile, "%03i.jpg", jpegCounter);
+                writePtr = fopen(writeFile, "w");
+                if (writePtr == NULL)
+                {
+                    return 1;
+                }
+                fwrite(buffer, 1, 512, writePtr);
+                jpegCounter++;
             }
+            else
+            {
+                fclose(writePtr); // close previous file, open new one
+                sprintf(writeFile, "%03i.jpg", jpegCounter);
+                writePtr = fopen(writeFile, "w");
+                if (writePtr == NULL)
+                {
+                    return 1;
+                }
+                fwrite(buffer, 1, 512, writePtr);
+                jpegCounter++;
+            }
+            printf("jpegCounter: %i, block: %i\n", jpegCounter, i);
         }
-            fclose(writePtr);
+        else
+        {
+            fwrite(buffer, 1, 512, writePtr);
+        }
     }
-
     fclose(rawPtr);
     return 0;
 }
