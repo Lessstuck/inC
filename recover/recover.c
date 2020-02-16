@@ -22,54 +22,49 @@ int main(int argc, char *argv[])
     // get 512-byte buffers
     BYTE gotc;
     BYTE buffer[512];
+    int bufferSize = 0;
     int i = 0;
     long j = 0;
     int k = 0;
     int jpegCounter = 0;
-    char writeFile[7];
+    char writeFile[50];
     FILE *writePtr = NULL;
 
-    for (i = 0; i < 7314; i++)  // magic number of blocks in test file
+    do
     {
-         if (fread(buffer, 1, 512, rawPtr) < 512)
-         {
-            fclose(rawPtr);
-            fclose(writePtr);
-            return 0;
-         }
+        bufferSize = fread(buffer, 1, 512, rawPtr);
+
+        // {
+        //     fclose(rawPtr);
+        //     fclose(writePtr);
+        //     return 0;
+        // }
         // look for jpeg header
         if ((buffer[0] == 0xff) && (buffer[1] == 0xd8) && (buffer[2] == 0xff) && ((buffer[3] & 0xf0) == 0xe0))
         {
-            if (jpegCounter == 0)
+            // close previous file unless this is the first one
+            // if (jpegCounter != 0)
+            // {
+            //     // fclose(writePtr);
+            // }
+
+            // name and write new file
+            sprintf(writeFile, "%03i.jpg", jpegCounter);
+            writePtr = fopen(writeFile, "w");
+            if (writePtr == NULL)
             {
-                sprintf(writeFile, "%03i.jpg", jpegCounter);
-                writePtr = fopen(writeFile, "w");
-                if (writePtr == NULL)
-                {
-                    return 1;
-                }
-                fwrite(buffer, 1, 512, writePtr);
-                jpegCounter++;
+                return 1;
             }
-            else
-            {
-                fclose(writePtr); // close previous file, open new one
-                sprintf(writeFile, "%03i.jpg", jpegCounter);
-                writePtr = fopen(writeFile, "w");
-                if (writePtr == NULL)
-                {
-                    return 1;
-                }
-                fwrite(buffer, 1, 512, writePtr);
-                jpegCounter++;
-            }
-            printf("jpegCounter: %i, block: %i\n", jpegCounter, i);
+            jpegCounter++;
+            printf("jpegCounter: %i\n", jpegCounter);
+        // segmentation fault happens HERE               <----------------------
+        fwrite(buffer, 1, 512, writePtr);
+        fclose(writePtr);
+
         }
-        else
-        {
-            fwrite(buffer, 1, 512, writePtr);
-        }
+
     }
+    while (bufferSize == 512);
     fclose(rawPtr);
     return 0;
 }
