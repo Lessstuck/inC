@@ -16,24 +16,45 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 1 ;
+const unsigned int N = 10 ;
 
 // Hash table
 node *table[N];
+
+int wordCount;
 
 
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    // TODO
-    return false;
+    int h = hash(word);
+    node *lookup = table[h];
+    do
+    {
+        lookup = lookup->next;
+    }
+    while (lookup->word != word && lookup != NULL);
+    // check
+    if (lookup->word == word)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    // TODO
-    return 0;
+    // sourced from CS50 video
+    int sum = 0;
+    for (int j = 0; word[j] != '\0'; j++)
+    {
+        sum += word[j];
+    }
+    return sum % N;
 }
 
 // Loads dictionary into memory, returning true if successful else false
@@ -48,7 +69,7 @@ bool load(const char *dictionary)
     }
     char *newWord = malloc(sizeof(char) * LENGTH);
     int h;
-    int wordCount = 0;
+    wordCount = 0;
 
     while (fgets(newWord, LENGTH, fp) != NULL) //should I be using fscanf?
     {
@@ -86,13 +107,26 @@ bool load(const char *dictionary)
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 unsigned int size(void)
 {
-    // TODO
-    return 0;
+    return wordCount;
 }
 
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    // TODO
-    return false;
+    for (int i = 0; i < N; i++)
+    {
+        while (table[i] != NULL)
+        {
+            // search non-empty members of hash table
+            node *search = table[i];
+            while (search != NULL)
+            {
+                search = search->next;
+            }
+            // TODO work backwards to free all nodes
+            free(search);
+        }
+    }
+
+    return true;
 }
