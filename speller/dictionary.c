@@ -17,7 +17,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 1000;
+const unsigned int N = 5;
 
 // Hash table
 node *table[N];
@@ -28,28 +28,62 @@ int wordCount;
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    int h = hash(word);
-    node *lookup = table[h]->next;
+    printf("lookup: %s\n", word);
     // convert to lower case
-    char *tmp = malloc(LENGTH * sizeof(char));
-    tmp = strcpy(tmp, word);
+    char *lookupWord = malloc(strlen(word));
+    if (lookupWord == NULL)
+    {
+        return false;
+    }
+    lookupWord = strcpy(lookupWord, word);
+    printf("lookupWord: |%s|\n", lookupWord);
+    for (int i = 0; i < strlen(lookupWord); i++)
+    {
+        lookupWord[i] = tolower(word[i]);
+    }
+    printf("Lowercaselookup: |%s|\n", lookupWord);
+    // calculate hash of word and search corresponding linked list
+    int h = hash(lookupWord);
+    if (table[h] == NULL)
+    {
+        free(lookupWord);
+        return false;
+    }
+    node *lookup = malloc(sizeof(node));
+    if (lookup == NULL)
+    {
+        printf("Out of memory!\n");
+        return false;
+    }
+    lookup = table[h]->next;
+    if (lookup == NULL) // nothing stored at this hash
+    {
+        free(lookup);
+        free(lookupWord);
+        return false;
+    }
+    printf("first word in hash: |%s|\n", table[h]->next->word);
+    printf("nodeLookup: |%s|\n", lookup->word);
 
-    for (int i = 0; i < LENGTH; i++)
-    {
-        tmp[i] = tolower(word[i]);
-    }
-    word = tmp;
-    do
-    {
-        if (strcmp(lookup->word, word) == 1)
-        {
-            return true;
-        }
-        lookup = lookup->next;
-    }
-    while (lookup->next != NULL);
+    // do
+    // {
+    //     if (strncmp(lookup->word, lookupWord, LENGTH + 1) == 1)
+    //     {
+
+    //         printf("true\n");
+    //         free(lookup);
+    //         return true;
+    //     }
+    //     lookup = lookup->next;
+    //     printf("next\n");
+    // }
+    // while (lookup->next != NULL);
+    free(lookupWord);
+    free(lookup);
     return false;
 }
+
+
 
 // Hashes word to a number
 unsigned int hash(const char *word)
@@ -60,14 +94,14 @@ unsigned int hash(const char *word)
     {
         sum += word[j];
     }
+    printf("Hash of %s is %i\n", word, sum % N);
     return sum % N;
 }
 
 // Loads dictionary into memory, returning true if successful else false
 bool load(const char *dictionary)
 {
-
-    FILE *fp = fopen(dictionary, "r");
+FILE *fp = fopen(dictionary, "r");
     if (fp == NULL)
     {
         printf("Error opening dictionary\n");
@@ -128,15 +162,15 @@ bool unload(void)
         }
         else
         {
-            node *tmp = malloc(sizeof(node));
+            node *temp = malloc(sizeof(node));
             node *head = malloc(sizeof(node));
             // delete links from head, code ideas from stackoverflow by insumity (June 20, 2011)
             head = table[i];
             while (head != NULL)
             {
-                tmp = head;
+                temp = head;
                 head = head->next;
-                free(tmp);
+                // free(temp);
             }
             free(head);
         }
