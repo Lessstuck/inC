@@ -133,12 +133,23 @@ FILE *fp = fopen(dictionary, "r");
                 }
                 head->next = n;
                 table[h] = head;
+                // can't free(head) here
             }
             else // new item to be inserted at the beginning of the list
             {
-                n->next = table[h]->next;
+                printf("table[%i]->next->word: %s\n", h, table[h]->next->word);
+                node *head = malloc(sizeof(node));
+                if (head == NULL)
+                {
+                    return false;
+                }
+                head = table[h]->next;
+                n->next = head;
                 table[h]->next = n;
+                // can't free(head) here
+                printf("table[%i]->next->next->word: %s\n", h, table[h]->next->next->word);
             }
+            printf("table[%i]->next->word: %s\n", h, table[h]->next->word);
             wordCount++;
         }
     }
