@@ -28,7 +28,6 @@ int wordCount;
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    printf("lookup: %s\n", word);
     // convert to lower case
     char *lookupWord = malloc(strlen(word));
     if (lookupWord == NULL)
@@ -36,12 +35,10 @@ bool check(const char *word)
         return false;
     }
     lookupWord = strcpy(lookupWord, word);
-    printf("lookupWord: |%s|\n", lookupWord);
     for (int i = 0; i < strlen(lookupWord); i++)
     {
         lookupWord[i] = tolower(word[i]);
     }
-    printf("Lowercaselookup: |%s|\n", lookupWord);
     // calculate hash of word and search corresponding linked list
     int h = hash(lookupWord);
     if (table[h] == NULL)
@@ -49,6 +46,7 @@ bool check(const char *word)
         free(lookupWord);
         return false;
     }
+    // lookup node used to go through linked list
     node *lookup = malloc(sizeof(node));
     if (lookup == NULL)
     {
@@ -62,22 +60,17 @@ bool check(const char *word)
         free(lookupWord);
         return false;
     }
-    printf("first word in hash: |%s|\n", table[h]->next->word);
-    printf("nodeLookup: |%s|\n", lookup->word);
+    do
+    {
+        if (strncmp(lookup->word, lookupWord, LENGTH + 1) == 0)
+        {
+            free(lookupWord);
+            free(lookup);
+            return true;
+        }
+    }
+    while ((lookup = lookup->next) != NULL);
 
-    // do
-    // {
-    //     if (strncmp(lookup->word, lookupWord, LENGTH + 1) == 1)
-    //     {
-
-    //         printf("true\n");
-    //         free(lookup);
-    //         return true;
-    //     }
-    //     lookup = lookup->next;
-    //     printf("next\n");
-    // }
-    // while (lookup->next != NULL);
     free(lookupWord);
     free(lookup);
     return false;
@@ -94,7 +87,6 @@ unsigned int hash(const char *word)
     {
         sum += word[j];
     }
-    printf("Hash of %s is %i\n", word, sum % N);
     return sum % N;
 }
 
@@ -133,11 +125,9 @@ FILE *fp = fopen(dictionary, "r");
                 }
                 head->next = n;
                 table[h] = head;
-                // can't free(head) here
             }
             else // new item to be inserted at the beginning of the list
             {
-                printf("table[%i]->next->word: %s\n", h, table[h]->next->word);
                 node *head = malloc(sizeof(node));
                 if (head == NULL)
                 {
@@ -146,10 +136,7 @@ FILE *fp = fopen(dictionary, "r");
                 head = table[h]->next;
                 n->next = head;
                 table[h]->next = n;
-                // can't free(head) here
-                printf("table[%i]->next->next->word: %s\n", h, table[h]->next->next->word);
             }
-            printf("table[%i]->next->word: %s\n", h, table[h]->next->word);
             wordCount++;
         }
     }
