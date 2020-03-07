@@ -21,7 +21,7 @@ const unsigned int N = 5;
 
 // Hash table
 node *table[N];
-node *deleteArray[N];
+
 int wordCount;
 
 
@@ -53,19 +53,20 @@ bool check(const char *word)
         printf("Out of memory!\n");
         return false;
     }
-    lookup = table[h]->next;
-    if (lookup == NULL) // nothing stored at this hash
+    if (table[h]->next == NULL) // nothing stored at this hash
     {
         free(lookup);
         free(lookupWord);
         return false;
     }
+    lookup = table[h]->next;
     do
     {
+        // printf("hash: %i, lookup->word: %s, lookupWord: %s\n", h, lookup->word, lookupWord);
         if (strncmp(lookup->word, lookupWord, LENGTH + 1) == 0)
         {
             free(lookupWord);
-            free(lookup);
+            // free(lookup);
             return true;
         }
     }
@@ -125,7 +126,7 @@ FILE *fp = fopen(dictionary, "r");
                 }
                 head->next = n;
                 table[h] = head;
-                // printf("load first table[%i]->word: |%s|\n", h, table[h]->next->word);
+                // printf("first table[%i]->next->word: %s\n", h, table[h]->next->word);
             }
             else // new item to be inserted at the beginning of the list
             {
@@ -137,33 +138,11 @@ FILE *fp = fopen(dictionary, "r");
                 head = table[h]->next;
                 n->next = head;
                 table[h]->next = n;
-                // printf("load second table[%i]->word: |%s|\n", h, table[h]->next->word);
+                // printf("additional table[%i]->next->word: %s\n", h, table[h]->next->word);
             }
             wordCount++;
-
-
         }
     }
-
-
-            for (int i = 0; i < N; i++)
-            {
-                node *head = malloc(sizeof(node));
-                if (head == NULL)
-                {
-                    return false;
-                }
-                head = table[i];
-                while (head != NULL)
-                {
-
-                // printf("%i head->word: %s\n", i, head->word);
-                head = head->next;
-                }
-                free(head);
-            }
-
-
     return true;
 }
 
@@ -176,42 +155,27 @@ unsigned int size(void)
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    for (int i = 0; i < N - 1; i++)
+    for (int i = 0; i < N; i++)
     {
-        // printf("hash: %i\n", i);
         if (table[i] == NULL)
         {
-            // printf("no link at this hash\n");
             continue;
         }
         else
         {
+            node *temp = malloc(sizeof(node));
             node *head = malloc(sizeof(node));
-            if (head == NULL)
+            // delete links from head, code ideas from stackoverflow by insumity (June 20, 2011)
+            head = table[i];
+            while (head != NULL)
             {
-                return false;
-            }
-            head = table[i]->next;
-
-            int k = 0; // count nodes in this linked list
-            do
-            {
-                deleteArray[k] = head;
-                // printf("add to deleteArray: %s\n", deleteArray[k]->word);
-                k++;
-            }
-            while ((head = head->next) != NULL);
-            // delete nodes in array in this linked list;
-            if (k > 0)
-            {
-                for (int m = 0; m < k; m++)
-                {
-                    // printf("free: %s\n", deleteArray[m]->word);
-                    free(deleteArray[m]);
-                }
+                temp = head;
+                head = head->next;
+                // free(temp);
             }
             free(head);
         }
     }
+
     return true;
 }
