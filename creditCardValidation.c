@@ -3,9 +3,9 @@
 #include <math.h>
 
 // visa (16) 4003600000000014
-// 
-// visa (13) 
-// 
+//
+// visa (13)
+//
 // 4
 // amex (15) 378282246310005
 // 34 37
@@ -18,10 +18,10 @@ long cc;
 //return one digit from long number
 int getDigit(long number, int place)
 {
-        long tensPlaceHigher = pow(10, (place + 1));
-        long tensPlace = pow(10, (place));
-        long digit = ((number % tensPlaceHigher) - (number % (tensPlace))) / tensPlace;
-        return digit;
+    long tensPlaceHigher = pow(10, (place + 1));
+    long tensPlace = pow(10, (place));
+    long digit = ((number % tensPlaceHigher) - (number % (tensPlace))) / tensPlace;
+    return digit;
 }
 
 // Luhn's Algorithm
@@ -51,23 +51,14 @@ int luhn(long la)
             if (digit > 9)
             {
                 // add digits if there are two
-                 digit = ((digit  - (digit % 10)) * .1) + (digit % 10);
+                digit = ((digit  - (digit % 10)) * .1) + (digit % 10);
             }
             leftSum = leftSum + (digit);
         }
         isLeft = !isLeft;
     }
-    printf("rightSum: %d\n", rightSum);
-    printf("leftSum: %d\n", leftSum);
-    if (((leftSum + rightSum) % 10) == 0)
-    {
-        valid = 1;
-    }
-    else
-    {
-        valid = 0;
-    }
-    return (valid);
+// return 1 if number is valid
+    return (((leftSum + rightSum) % 10) == 0);
 }
 
 
@@ -77,20 +68,39 @@ int main(void)
     // get card number
     do
     {
-        cc = get_long("Number: ");  
+        cc = get_long("Number: ");
     }
     while (cc < 0 || cc > 9999999999999999);
 
-    printf("%d\n", luhn(cc));
+    // getting digits for final card check, starting at 1 instead of 0, like problem text
+    int d16 = getDigit(cc, 15);
+    int d15 = getDigit(cc, 14);
+    int d14 = getDigit(cc, 13);
+    int d13 = getDigit(cc, 12);
+
+    if (luhn(cc) != 1)
+    {
+        printf("INVALID\n");
+    }
+    else if (d16 == 0 && (d15 == 3) && ((d14 == 4) || (d14 == 7)))
+    {
+        printf("AMEX\n");
+    }
+    else if ((d16 == 5) && ((d15 == 1) || (d15 == 2) || (d15 == 3) || (d15 == 4) || (d15 == 5)))
+    {
+        printf("MASTERCARD\n");
+    }
+    else if (d16 == 4)
+    {
+        printf("VISA\n");
+    }
+    else if ((d16 == 0) && (d15 == 0) && (d14 == 0) && (d13 == 4))
+    {
+        printf("VISA\n");
+    }
+    else
+    {
+        printf("INVALID\n");
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
